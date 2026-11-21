@@ -1,5 +1,6 @@
-import { motion } from 'framer-motion'
-import { snappySpring } from '@/components/motion/tokens'
+import { AnimatePresence, motion } from 'framer-motion'
+import { useMemo, useState } from 'react'
+import { snappySpring, softSpring } from '@/components/motion/tokens'
 import { LocationSearch } from '@/components/shared/LocationSearch'
 import { SAMPLE_LOCATIONS } from '@/data/sample-locations'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
@@ -31,10 +32,23 @@ export function CityPickers({
   maxCities,
 }: CityPickersProps) {
   const reduced = usePrefersReducedMotion()
+  const [adding, setAdding] = useState(false)
   const canAdd = locations.length < maxCities
-  const addCandidates = SAMPLE_LOCATIONS.filter(
-    (sample) => !locations.some((location) => location.id === sample.id),
+
+  const addCandidates = useMemo(
+    () =>
+      SAMPLE_LOCATIONS.filter(
+        (sample) => !locations.some((location) => location.id === sample.id),
+      ),
+    [locations],
   )
+
+  const draftValue = addCandidates[0] ?? SAMPLE_LOCATIONS[0]
+
+  function commitAdd(location: Location) {
+    onAddCity(location)
+    setAdding(false)
+  }
 
   return (
     <div className="flex flex-col gap-2.5 sm:gap-4">
@@ -49,22 +63,53 @@ export function CityPickers({
         >
           Swap A/B
         </motion.button>
-        {canAdd && addCandidates[0] && (
+        {canAdd && (
           <button
             type="button"
-            onClick={() => onAddCity(addCandidates[0])}
+            onClick={() => setAdding((open) => !open)}
+            aria-expanded={adding}
             className="rounded-full border border-sun-500/30 bg-sun-500/10 px-3 py-1.5 text-[0.65rem] font-semibold tracking-wide text-sun-300 uppercase sm:px-4 sm:py-2 sm:text-xs"
           >
-            Add city
+            {adding ? 'Cancel' : 'Add city'}
           </button>
         )}
       </div>
 
+      <AnimatePresence initial={false}>
+        {adding && canAdd && (
+          <motion.div
+            key="add-city"
+            initial={reduced ? { opacity: 0 } : { opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={reduced ? { opacity: 0 } : { opacity: 0, y: -4 }}
+            transition={reduced ? { duration: 0.12 } : softSpring}
+            className="rounded-2xl border border-white/[0.08] bg-night-900/40 p-3"
+          >
+            <p className="mb-2 text-[0.65rem] font-bold tracking-[0.14em] text-mist-400 uppercase">
+              New city · {SLOT_LABELS[locations.length] ?? 'City'}
+            </p>
+            <LocationSearch value={draftValue} onChange={commitAdd} />
+            {addCandidates.length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {addCandidates.slice(0, 6).map((sample) => (
+                  <button
+                    key={sample.id}
+                    type="button"
+                    onClick={() => commitAdd(sample)}
+                    className="rounded-full border border-white/[0.08] bg-night-950/40 px-2.5 py-1 text-[0.7rem] font-medium text-mist-300 hover:border-sun-500/35 hover:text-sun-300"
+                  >
+                    {sample.name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div
         className={`grid gap-2.5 sm:gap-3 ${
-          locations.length >= 3
-            ? 'lg:grid-cols-2 xl:grid-cols-2'
-            : 'lg:grid-cols-2'
+          locations.length >= 3 ? 'lg:grid-cols-2 xl:grid-cols-2' : 'lg:grid-cols-2'
         }`}
       >
         {locations.map((location, index) => (

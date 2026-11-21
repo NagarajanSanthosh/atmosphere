@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Daymark">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#07060a"/>
+      <stop offset="55%" stop-color="#1a1622"/>
+      <stop offset="100%" stop-color="#2a1f18"/>
+    </linearGradient>
+    <linearGradient id="sun" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffc45a"/>
+      <stop offset="100%" stop-color="#e07a3a"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="980" cy="160" r="120" fill="url(#sun)" opacity="0.95"/>
+  <circle cx="980" cy="160" r="160" fill="#f0a43a" opacity="0.12"/>
+  <text x="80" y="280" fill="#f7f1e8" font-family="Georgia, serif" font-size="92" font-weight="700">Daymark</text>
+  <text x="80" y="360" fill="#c4b8a8" font-family="system-ui, sans-serif" font-size="36">Understand your world through sunlight</text>
+  <text x="80" y="520" fill="#f0a43a" font-family="system-ui, sans-serif" font-size="24" letter-spacing="4" text-transform="uppercase">Solar observatory</text>
+</svg>

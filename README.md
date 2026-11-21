@@ -60,4 +60,6 @@ src/
 | 10 | Tier A — URL-synced place (`lat/lon/tz` or `loc`) + `date`; Use my location (reverse geocode); date controls on Explorer/Studio/Weather/Compare; Shoot brief + azimuth compass; HorizonCanvas idle/hover preload; `vercel.json` / `netlify.toml` SPA rewrites. |
 | 11 | First-visit intro — Framer sun-rise → moon → Daymark splash (once via `localStorage`; `?intro=1` to replay; Skip + reduced-motion). |
 | 12 | Year daylight heatmap — `/year` calendar grid; day length vs 12h / golden percentile; shared place/date URL. |
-| **13** | Weather rebuild *(current)* — mobile-first single column: now → hours → UV/cloud charts → week; auto-snap to today when date has no forecast. |
+| 13 | Weather rebuild — mobile-first single column: now → hours → UV/cloud charts → week; auto-snap to today when date has no forecast. |
+| 14 | Compare trip polish — persist B–D in URL (`loc2`…); intentional Add city; N-city copy + A-vs-B focus deltas; trip grid layout. |
+| **15** | SEO foundation *(current)* — meta/OG/JSON-LD, per-route `SeoHead`, `robots.txt` + `sitemap.xml`, bot skip on intro cover, post-build HTML shells for `/studio` `/weather` `/compare` `/year`. Set `VITE_SITE_URL` to your production origin. |

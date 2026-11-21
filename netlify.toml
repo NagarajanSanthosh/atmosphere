@@ -2,7 +2,9 @@
   command = "npm run build"
   publish = "dist"
 
+# Existing static files (e.g. /studio/index.html from prerender) win over this fallback.
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+  force = false

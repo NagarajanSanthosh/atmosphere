@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { getActiveLightPhase, getLightWindows, type LightWindow } from '@/engines/daylight'
 import { getSolarDayEvents, type SolarDayEvents } from '@/engines/solar'
 import { SAMPLE_LOCATIONS } from '@/data/sample-locations'
@@ -12,7 +13,11 @@ import {
   type GoldenDurationDelta,
 } from '@/features/city-comparison/utils/goldenDelta'
 import type { Location } from '@/types/location'
-import { locationEquals } from '@/utils/placeParams'
+import {
+  applyTripExtrasToParams,
+  locationEquals,
+  tripLocationsFromSearchParams,
+} from '@/utils/placeParams'
 
 export type CityDaySnapshot = {
   location: Location
@@ -60,32 +65,49 @@ type UseCityCompareOptions = {
 
 /**
  * Multi-city solar + daylight compare on a shared calendar day (trip mode).
- * City A stays synced with the app-wide place.
+ * City A stays synced with the app-wide place; B–D persist as loc2…/lat2… in the URL.
  */
 export function useCityCompare({
   primaryLocation,
   dayAnchor,
 }: UseCityCompareOptions) {
-  const [locations, setLocations] = useState<Location[]>(() => [
-    primaryLocation,
-    SAMPLE_LOCATIONS.find((item) => item.id !== primaryLocation.id) ??
-      SAMPLE_LOCATIONS[1],
-  ])
+  const [searchParams, setSearchParams] = useSearchParams()
 
+  const [locations, setLocations] = useState<Location[]>(() =>
+    tripLocationsFromSearchParams(searchParams, primaryLocation, MAX_CITIES),
+  )
+
+  // Keep City A aligned with shared place.
   useEffect(() => {
     setLocations((current) => {
       if (locationEquals(current[0], primaryLocation)) return current
       const next = [...current]
       next[0] = primaryLocation
-      // Avoid duplicate if B was the same city
       if (next[1] && locationEquals(next[1], primaryLocation)) {
         next[1] =
           SAMPLE_LOCATIONS.find((item) => item.id !== primaryLocation.id) ??
           SAMPLE_LOCATIONS[1]
       }
-      return next
+      return next.filter(
+        (item, index, list) =>
+          index === 0 || !list.slice(0, index).some((prior) => locationEquals(prior, item)),
+      )
     })
   }, [primaryLocation])
+
+  // Persist B–D to the URL (share / refresh). Init already reads params on mount.
+  useEffect(() => {
+    setSearchParams(
+      (current) => {
+        const copy = new URLSearchParams(current)
+        const before = copy.toString()
+        applyTripExtrasToParams(copy, locations.slice(1))
+        if (copy.toString() === before) return current
+        return copy
+      },
+      { replace: true },
+    )
+  }, [locations, setSearchParams])
 
   const at = dayAnchor
 
@@ -144,7 +166,7 @@ export function useCityCompare({
   function addCity(location: Location) {
     setLocations((current) => {
       if (current.length >= MAX_CITIES) return current
-      if (current.some((item) => item.id === location.id)) return current
+      if (current.some((item) => locationEquals(item, location))) return current
       return [...current, location]
     })
   }

@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { AppHeader } from '@/app/layout/AppHeader'
 import { PageTransition } from '@/components/motion'
+import { SeoHead } from '@/components/seo/SeoHead'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 
 export function AppShell() {
@@ -8,6 +9,7 @@ export function AppShell() {
 
   return (
     <div className="relative flex min-h-svh flex-col overflow-x-hidden pb-[env(safe-area-inset-bottom)]">
+      <SeoHead />
       <motion.div
         aria-hidden="true"
         className="pointer-events-none absolute inset-x-0 top-0 h-[32vh] bg-[radial-gradient(ellipse_at_top,rgba(255,196,90,0.09),transparent_65%)] sm:h-[42vh]"

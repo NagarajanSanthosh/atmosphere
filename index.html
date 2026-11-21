@@ -9,7 +9,68 @@
     />
     <meta name="theme-color" content="#07060a" />
     <meta name="color-scheme" content="dark" />
+    <meta
+      name="description"
+      content="Explore sunrise, sunset, golden hour, UV, and city daylight — free solar observatory in your browser. No accounts."
+    />
+    <meta
+      name="keywords"
+      content="golden hour, sunrise, sunset, day length, UV index, sun position, photography planner, daylight"
+    />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://daymark.app/" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Daymark" />
+    <meta property="og:locale" content="en_US" />
+    <meta
+      property="og:title"
+      content="Daymark — Understand your world through sunlight"
+    />
+    <meta
+      property="og:description"
+      content="Explore sunrise, sunset, golden hour, UV, and city daylight — free solar observatory in your browser. No accounts."
+    />
+    <meta property="og:url" content="https://daymark.app/" />
+    <meta property="og:image" content="https://daymark.app/og.svg" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="Daymark — Understand your world through sunlight"
+    />
+    <meta
+      name="twitter:description"
+      content="Explore sunrise, sunset, golden hour, UV, and city daylight — free solar observatory in your browser."
+    />
+    <meta name="twitter:image" content="https://daymark.app/og.svg" />
+
     <title>Daymark — Understand your world through sunlight</title>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Daymark",
+        "alternateName": "Daymark Solar Observatory",
+        "url": "https://daymark.app/",
+        "description": "Explore sunrise, sunset, golden hour, UV, and city daylight — free solar observatory in your browser. No accounts.",
+        "applicationCategory": "LifestyleApplication",
+        "operatingSystem": "Web",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "featureList": [
+          "Live sun explorer",
+          "Golden hour studio",
+          "UV and weather",
+          "City daylight comparison",
+          "Year daylight heatmap"
+        ],
+        "slogan": "Understand your world through sunlight"
+      }
+    </script>
     <style>
       html,
       body {
@@ -26,17 +87,50 @@
       #boot-cover.is-done {
         display: none;
       }
+      .seo-fallback {
+        max-width: 40rem;
+        margin: 0 auto;
+        padding: 2rem 1.25rem 4rem;
+        color: #c4b8a8;
+        font-family: system-ui, sans-serif;
+        line-height: 1.5;
+      }
+      .seo-fallback h1 {
+        color: #f7f1e8;
+        font-size: 1.75rem;
+      }
+      .seo-fallback a {
+        color: #f0a43a;
+      }
+      .seo-fallback ul {
+        padding-left: 1.25rem;
+      }
     </style>
   </head>
   <body>
     <div id="boot-cover" aria-hidden="true"></div>
     <div id="root"></div>
+    <noscript>
+      <div class="seo-fallback">
+        <h1>Daymark</h1>
+        <p>Understand your world through sunlight. Enable JavaScript for the full interactive observatory.</p>
+        <ul>
+          <li><a href="/">Sun Explorer</a> — live sun position and day length</li>
+          <li><a href="/studio">Golden Hour Studio</a> — plan shoots with light windows</li>
+          <li><a href="/weather">UV &amp; Weather</a> — sky conditions for golden hour</li>
+          <li><a href="/compare">Compare</a> — daylight across cities</li>
+          <li><a href="/year">Year</a> — day length heatmap</li>
+        </ul>
+      </div>
+    </noscript>
     <script>
-      // Returning visitors: drop the cover before first paint of the app.
+      // Returning visitors + crawlers: drop the cover before first paint.
       try {
+        var ua = navigator.userAgent || ''
+        var isBot = /bot|googlebot|bingbot|crawler|spider|slurp|facebookexternalhit|embedly|quora link preview|linkedinbot|twitterbot|pinterest|redditbot/i.test(ua)
         var seen = localStorage.getItem('daymark-intro-v1') === '1'
         var force = new URLSearchParams(location.search).get('intro') === '1'
-        if (seen && !force) {
+        if (isBot || (seen && !force)) {
           document.getElementById('boot-cover').classList.add('is-done')
         }
       } catch (e) {}

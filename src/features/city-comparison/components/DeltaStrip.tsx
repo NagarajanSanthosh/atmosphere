@@ -13,6 +13,7 @@ type DeltaStripProps = {
   earlierEvening: EarlierEvening | null
   nameA: string
   nameB: string
+  cityCount?: number
   reducedMotion?: boolean
 }
 
@@ -22,11 +23,16 @@ export function DeltaStrip({
   earlierEvening,
   nameA,
   nameB,
+  cityCount = 2,
   reducedMotion = false,
 }: DeltaStripProps) {
   if (!delta) return null
 
   const punchKey = `${nameA}-${nameB}-${delta.headline}-${goldenDelta?.headline ?? ''}`
+  const focusLabel =
+    cityCount > 2
+      ? `A vs B focus · ${nameA} vs ${nameB}`
+      : `A vs B · ${nameA} vs ${nameB}`
 
   return (
     <motion.div
@@ -42,8 +48,13 @@ export function DeltaStrip({
           className="pointer-events-none absolute -right-10 -top-12 size-40 rounded-full bg-sun-500/12 blur-3xl"
         />
         <p className="text-[0.65rem] font-bold tracking-[0.16em] text-mist-400 uppercase">
-          A vs B · {nameA} vs {nameB}
+          {focusLabel}
         </p>
+        {cityCount > 2 && (
+          <p className="mt-1 text-[0.7rem] text-mist-500">
+            Headline compares A and B — C/D stay on the cards and ribbon.
+          </p>
+        )}
 
         <div className="relative mt-2 min-h-[2.25rem] overflow-hidden sm:min-h-[2.75rem]">
           <AnimatePresence mode="popLayout" initial={false}>
