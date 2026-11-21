@@ -1,3 +1,4 @@
+import { AnimatePresence, motion } from 'framer-motion'
 import { Panel } from '@/components/ui/Panel'
 import type { SolarDayEvents, SunPosition } from '@/engines/solar'
 import { PinIcon } from '@/features/sun-explorer/components/PinIcon'
@@ -109,7 +110,20 @@ function Metric({
       <p className="text-[0.55rem] font-bold tracking-[0.12em] text-mist-500 uppercase">
         {label}
       </p>
-      <p className={`mt-1 truncate font-display text-sm sm:text-base ${accent}`}>{value}</p>
+      <div className="relative mt-1 h-[1.35em] overflow-hidden">
+        <AnimatePresence mode="popLayout" initial={false}>
+          <motion.p
+            key={value}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            className={`absolute inset-x-0 truncate font-display text-sm sm:text-base ${accent}`}
+          >
+            {value}
+          </motion.p>
+        </AnimatePresence>
+      </div>
     </div>
   )
 }

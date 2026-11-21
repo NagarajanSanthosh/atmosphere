@@ -10,9 +10,37 @@
     <meta name="theme-color" content="#07060a" />
     <meta name="color-scheme" content="dark" />
     <title>Daymark — Understand your world through sunlight</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        background: #07060a;
+      }
+      /* Covers the app until React mounts the intro (or decides to skip it). */
+      #boot-cover {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background: #07060a;
+      }
+      #boot-cover.is-done {
+        display: none;
+      }
+    </style>
   </head>
   <body>
+    <div id="boot-cover" aria-hidden="true"></div>
     <div id="root"></div>
+    <script>
+      // Returning visitors: drop the cover before first paint of the app.
+      try {
+        var seen = localStorage.getItem('daymark-intro-v1') === '1'
+        var force = new URLSearchParams(location.search).get('intro') === '1'
+        if (seen && !force) {
+          document.getElementById('boot-cover').classList.add('is-done')
+        }
+      } catch (e) {}
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

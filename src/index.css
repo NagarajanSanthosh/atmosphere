@@ -48,6 +48,8 @@
     color-scheme: dark;
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
+    /* Reserve scrollbar width so layout doesn’t jump when content overflows */
+    scrollbar-gutter: stable;
   }
 
   body {
@@ -116,6 +118,22 @@
       inset 0 0 0 1px rgba(0, 0, 0, 0.25),
       0 18px 50px rgba(0, 0, 0, 0.35);
     backdrop-filter: blur(12px);
+    transition:
+      border-color 220ms ease,
+      box-shadow 220ms ease,
+      transform 220ms ease;
+  }
+
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .instrument-panel:hover {
+      border-color: rgba(240, 164, 58, 0.22);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.08),
+        inset 0 0 0 1px rgba(0, 0, 0, 0.25),
+        0 22px 56px rgba(0, 0, 0, 0.4),
+        0 0 0 1px rgba(240, 164, 58, 0.08);
+      transform: translateY(-2px);
+    }
   }
 
   @media (min-width: 640px) {
@@ -193,6 +211,16 @@
   .nav-chip:hover {
     color: var(--color-mist-50);
     background: rgba(247, 241, 232, 0.04);
+  }
+
+  /* Active state is the Framer layoutId pill behind the link */
+  .nav-chip[aria-current='page'] {
+    color: var(--color-night-950);
+  }
+
+  .nav-chip[aria-current='page']:hover {
+    color: var(--color-night-950);
+    background: transparent;
   }
 
   .nav-chip-active {

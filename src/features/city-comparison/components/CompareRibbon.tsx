@@ -4,10 +4,11 @@ import type { CityDaySnapshot } from '@/features/city-comparison/hooks/useCityCo
 import { getDayProgress } from '@/features/sun-explorer/utils/zonedTime'
 
 type CompareRibbonProps = {
-  cityA: CityDaySnapshot
-  cityB: CityDaySnapshot
+  cities: CityDaySnapshot[]
   reducedMotion?: boolean
 }
+
+const COLORS = ['#f0a43a', '#8fa0d9', '#e07848', '#cfc4b4'] as const
 
 function daylightSpan(
   snapshot: CityDaySnapshot,
@@ -23,19 +24,17 @@ function daylightSpan(
 }
 
 export function CompareRibbon({
-  cityA,
-  cityB,
+  cities,
   reducedMotion = false,
 }: CompareRibbonProps) {
-  const spanA = daylightSpan(cityA)
-  const spanB = daylightSpan(cityB)
-
   return (
     <motion.div
       initial={reducedMotion ? false : { opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={
-        reducedMotion ? { duration: 0 } : { delay: 0.06, type: 'spring', stiffness: 260, damping: 28 }
+        reducedMotion
+          ? { duration: 0 }
+          : { delay: 0.06, type: 'spring', stiffness: 260, damping: 28 }
       }
     >
       <Panel className="p-4 sm:p-5">
@@ -47,18 +46,15 @@ export function CompareRibbon({
         </p>
 
         <div className="mt-4 space-y-3">
-          <RibbonRow
-            name={cityA.location.name}
-            color="#f0a43a"
-            span={spanA}
-            reducedMotion={reducedMotion}
-          />
-          <RibbonRow
-            name={cityB.location.name}
-            color="#8fa0d9"
-            span={spanB}
-            reducedMotion={reducedMotion}
-          />
+          {cities.map((city, index) => (
+            <RibbonRow
+              key={city.location.id}
+              name={city.location.name}
+              color={COLORS[index % COLORS.length]}
+              span={daylightSpan(city)}
+              reducedMotion={reducedMotion}
+            />
+          ))}
         </div>
 
         <div className="mt-2 flex justify-between text-[0.65rem] tracking-wide text-mist-500">
@@ -88,7 +84,7 @@ function RibbonRow({
       <div className="relative h-8 overflow-hidden rounded-xl border border-white/[0.08] bg-night-950/70">
         {span ? (
           <motion.div
-            className="absolute inset-y-1 rounded-lg"
+            className="absolute inset-y-1 origin-left rounded-lg"
             style={{
               left: `${span.left}%`,
               width: `${span.width}%`,

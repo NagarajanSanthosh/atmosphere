@@ -1,9 +1,20 @@
+import { motion } from 'framer-motion'
 import { useMemo } from 'react'
 import { projectSunToSky } from '@/engines/geometry'
-import { getSunPosition, type SolarDayEvents, type SunPosition } from '@/engines/solar'
+import {
+  getMoonSky,
+  getSunPosition,
+  type SolarDayEvents,
+  type SunPosition,
+} from '@/engines/solar'
 import { getSkyPalette } from '@/features/sun-explorer/utils/skyPalette'
-import { sampleSunPath } from '@/features/sun-explorer/utils/sampleSunPath'
+import {
+  sampleMoonPath,
+  sampleSunPath,
+  solsticeAnchors,
+} from '@/features/sun-explorer/utils/sampleSkyPaths'
 import { getDayProgress } from '@/features/sun-explorer/utils/zonedTime'
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 import type { Location } from '@/types/location'
 
 type SunSkyProps = {
@@ -12,19 +23,59 @@ type SunSkyProps = {
   instant: Date
   position: SunPosition
   events: SolarDayEvents
+  showOverlays?: boolean
 }
 
-export function SunSky({ location, dayAnchor, instant, position, events }: SunSkyProps) {
+export function SunSky({
+  location,
+  dayAnchor,
+  instant,
+  position,
+  events,
+  showOverlays = true,
+}: SunSkyProps) {
+  const reduced = usePrefersReducedMotion()
   const palette = getSkyPalette(position.altitudeDegrees)
+  const pathKey = `${location.id}-${dayAnchor.toDateString()}`
+
   const { path } = useMemo(
     () => sampleSunPath(location, dayAnchor),
     [location.latitude, location.longitude, location.timezone, dayAnchor],
   )
 
+  const moonPath = useMemo(
+    () => (showOverlays ? sampleMoonPath(location, dayAnchor).path : ''),
+    [showOverlays, location.latitude, location.longitude, location.timezone, dayAnchor],
+  )
+
+  const solsticePaths = useMemo(() => {
+    if (!showOverlays) return { summer: '', winter: '' }
+    const { summer, winter } = solsticeAnchors(dayAnchor)
+    return {
+      summer: sampleSunPath(location, summer).path,
+      winter: sampleSunPath(location, winter).path,
+    }
+  }, [showOverlays, location.latitude, location.longitude, location.timezone, dayAnchor])
+
   const sun = projectSunToSky({
     altitudeDegrees: position.altitudeDegrees,
     dayProgress: getDayProgress(instant, location.timezone),
   })
+
+  const moon = useMemo(() => {
+    const sky = getMoonSky({
+      latitude: location.latitude,
+      longitude: location.longitude,
+      date: instant,
+    })
+    return {
+      sky,
+      point: projectSunToSky({
+        altitudeDegrees: sky.altitudeDegrees,
+        dayProgress: getDayProgress(instant, location.timezone),
+      }),
+    }
+  }, [location.latitude, location.longitude, location.timezone, instant])
 
   const sunrise = projectMarker(location, events.sunrise)
   const noon = projectMarker(location, events.solarNoon)
@@ -35,7 +86,7 @@ export function SunSky({ location, dayAnchor, instant, position, events }: SunSk
     <svg
       viewBox="0 0 600 280"
       role="img"
-      aria-label="Sun path across the sky for the selected location and time"
+      aria-label="Sun and moon paths across the sky for the selected location and time"
       className="h-auto w-full overflow-hidden rounded-[1rem]"
     >
       <defs>
@@ -84,13 +135,58 @@ export function SunSky({ location, dayAnchor, instant, position, events }: SunSk
         />
       ))}
 
+      {showOverlays && solsticePaths.summer && (
+        <motion.path
+          key={`summer-${pathKey}`}
+          d={solsticePaths.summer}
+          fill="none"
+          stroke="rgba(255,196,90,0.22)"
+          strokeWidth="1.25"
+          strokeDasharray="2 6"
+          initial={reduced ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: reduced ? 0 : 0.45, duration: reduced ? 0 : 0.5 }}
+        />
+      )}
+      {showOverlays && solsticePaths.winter && (
+        <motion.path
+          key={`winter-${pathKey}`}
+          d={solsticePaths.winter}
+          fill="none"
+          stroke="rgba(143,160,217,0.28)"
+          strokeWidth="1.25"
+          strokeDasharray="2 6"
+          initial={reduced ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: reduced ? 0 : 0.55, duration: reduced ? 0 : 0.5 }}
+        />
+      )}
+
+      {showOverlays && moonPath && (
+        <motion.path
+          key={`moon-${pathKey}`}
+          d={moonPath}
+          fill="none"
+          stroke="rgba(183,196,239,0.45)"
+          strokeWidth="1.5"
+          strokeDasharray="3 5"
+          initial={reduced ? false : { pathLength: 0, opacity: 0.3 }}
+          animate={{ pathLength: 1, opacity: 1 }}
+          transition={{ delay: reduced ? 0 : 0.25, duration: reduced ? 0 : 0.9, ease: [0.22, 1, 0.36, 1] }}
+        />
+      )}
+
       {path && (
-        <path
+        <motion.path
+          key={`sun-${pathKey}`}
           d={path}
           fill="none"
-          stroke="rgba(247,241,232,0.28)"
-          strokeWidth="1.5"
+          stroke="rgba(247,241,232,0.35)"
+          strokeWidth="1.75"
           strokeDasharray="4 8"
+          initial={reduced ? false : { pathLength: 0, opacity: 0.4 }}
+          animate={{ pathLength: 1, opacity: 1 }}
+          transition={{ duration: reduced ? 0 : 1.05, ease: [0.22, 1, 0.36, 1] }}
         />
       )}
 
@@ -127,6 +223,23 @@ export function SunSky({ location, dayAnchor, instant, position, events }: SunSk
       >
         Midnight
       </text>
+
+      {showOverlays && (
+        <g fontSize="9" fontFamily="Figtree, sans-serif" fill="#8a7b6c">
+          <text x="40" y="268">
+            Solid dash · today
+          </text>
+          <text x="160" y="268" fill="rgba(255,196,90,0.7)">
+            Jun solstice
+          </text>
+          <text x="260" y="268" fill="rgba(143,160,217,0.85)">
+            Dec solstice
+          </text>
+          <text x="370" y="268" fill="rgba(183,196,239,0.9)">
+            Moon path
+          </text>
+        </g>
+      )}
 
       {hasDayArc && sunrise && (
         <>
@@ -188,12 +301,51 @@ export function SunSky({ location, dayAnchor, instant, position, events }: SunSk
         </text>
       )}
 
+      {showOverlays && moon.sky.aboveHorizon && !moon.point.belowHorizon && (
+        <motion.g
+          initial={reduced ? false : { opacity: 0, scale: 0.85 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: reduced ? 0 : 0.35, duration: reduced ? 0 : 0.4 }}
+          style={{ originX: `${moon.point.x}px`, originY: `${moon.point.y}px` }}
+        >
+          <circle
+            cx={moon.point.x}
+            cy={moon.point.y}
+            r="9"
+            fill="#ebe3d6"
+            opacity="0.9"
+          />
+          <circle
+            cx={moon.point.x + 3}
+            cy={moon.point.y - 1}
+            r="8"
+            fill={palette.mid}
+            opacity="0.85"
+          />
+        </motion.g>
+      )}
+
       {!sun.belowHorizon ? (
-        <g>
+        <motion.g
+          animate={
+            reduced
+              ? undefined
+              : {
+                  y: [0, -2.5, 0],
+                  scale: [1, 1.03, 1],
+                }
+          }
+          transition={
+            reduced
+              ? undefined
+              : { duration: 4.5, repeat: Infinity, ease: 'easeInOut' }
+          }
+          style={{ originX: `${sun.x}px`, originY: `${sun.y}px` }}
+        >
           <circle cx={sun.x} cy={sun.y} r="36" fill="url(#sun-glow)" />
           <circle cx={sun.x} cy={sun.y} r="12" fill="#ffc45a" />
           <circle cx={sun.x} cy={sun.y} r="6.5" fill="#fff1c9" />
-        </g>
+        </motion.g>
       ) : (
         <circle cx={sun.x} cy={sun.y} r="5" fill="#8a7b6c" opacity="0.7" />
       )}

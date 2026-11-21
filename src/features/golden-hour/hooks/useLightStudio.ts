@@ -5,18 +5,18 @@ import { nowOnLocalDay } from '@/features/sun-explorer/utils/zonedTime'
 
 type UseLightStudioOptions = {
   location: Location
+  dayAnchor: Date
 }
 
 /**
- * Studio state: location day + live "now" in that timezone,
+ * Studio state: shared calendar day + live wall-clock mapped onto that day,
  * with light windows and active phase from the daylight engine.
  */
-export function useLightStudio({ location }: UseLightStudioOptions) {
-  const [dayAnchor] = useState(() => new Date())
+export function useLightStudio({ location, dayAnchor }: UseLightStudioOptions) {
   const [now, setNow] = useState(() => new Date())
 
   useEffect(() => {
-    const id = window.setInterval(() => setNow(new Date()), 30_000)
+    const id = window.setInterval(() => setNow(new Date()), 1_000)
     return () => window.clearInterval(id)
   }, [])
 

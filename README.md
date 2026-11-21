@@ -12,8 +12,8 @@ No accounts. No backend. Browser + public APIs.
 - Tailwind CSS
 - React Router
 - TanStack Query (Open-Meteo fetch/cache)
-- Framer Motion (Studio UI choreography)
-- Three.js + React Three Fiber (Studio horizon band)
+- Framer Motion (route transitions, shared motion kit, drag scrubbers)
+- Three.js + React Three Fiber (Studio horizon band only)
 
 Current extras: SunCalc (via `engines/solar` wrapper), Open-Meteo weather + geocoding (via `services/`).
 
@@ -55,4 +55,7 @@ src/
 | 4 | Golden Hour Studio (shoot desk + horizon band) |
 | 5 | UV & weather |
 | 6 | City comparison |
-| **8** | Polish + deploy *(current)* |
+| 8 | Cross-app motion & UI polish — shared motion tokens, route enter/exit, nav layoutId pill, Explorer day drag scrub, Weather hourly drag + UV draw-in, Studio DepthCard / city crossfade, Compare swap layout + delta punch; `prefers-reduced-motion` respected. Deploy can follow as 8b. |
+| 9 | Tier B deepen — Explorer solstice/moon overlays + shadow estimator; Studio sticky countdown + optional window alerts + best-of-week golden evenings; Weather sky story, cloud-vs-golden overlay, 7-day UV; Compare date picker, trip mode (≤4 cities), golden duration / earlier evening. |
+| 10 | Tier A — URL-synced place (`lat/lon/tz` or `loc`) + `date`; Use my location (reverse geocode); date controls on Explorer/Studio/Weather/Compare; Shoot brief + azimuth compass; HorizonCanvas idle/hover preload; `vercel.json` / `netlify.toml` SPA rewrites. |
+| **11** | First-visit intro *(current)* — Framer sun-rise → moon → Daymark splash (once via `localStorage`; `?intro=1` to replay; Skip + reduced-motion). |

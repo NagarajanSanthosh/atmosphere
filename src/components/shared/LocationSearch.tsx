@@ -1,6 +1,9 @@
+import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
 import { useId, useRef, useState, type KeyboardEvent } from 'react'
+import { softSpring } from '@/components/motion/tokens'
 import { SAMPLE_LOCATIONS } from '@/data/sample-locations'
 import { useLocationSearch } from '@/hooks/useLocationSearch'
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 import { formatLocationLabel, type Location } from '@/types/location'
 
 type LocationSearchProps = {
@@ -15,6 +18,7 @@ export function LocationSearch({ value, onChange }: LocationSearchProps) {
   const [open, setOpen] = useState(false)
   const [activeIndex, setActiveIndex] = useState(0)
   const { results, searching, error, isLive } = useLocationSearch(query)
+  const reduced = usePrefersReducedMotion()
 
   function selectLocation(location: Location) {
     onChange(location)
@@ -92,77 +96,92 @@ export function LocationSearch({ value, onChange }: LocationSearchProps) {
         )}
       </div>
 
-      <div className="mt-2 flex gap-1.5 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {SAMPLE_LOCATIONS.map((location) => {
-          const selected = location.id === value.id
-          return (
-            <button
-              key={location.id}
-              type="button"
-              onClick={() => selectLocation(location)}
-              className={`shrink-0 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sun-400 ${
-                selected
-                  ? 'border-sun-500/40 bg-sun-500/15 text-sun-300'
-                  : 'border-white/[0.08] bg-night-900/40 text-mist-300 hover:border-white/15 hover:text-mist-50'
-              }`}
-            >
-              {location.name}
-            </button>
-          )
-        })}
-      </div>
+      <LayoutGroup id={`chips-${listId}`}>
+        <div className="mt-2 flex gap-1.5 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {SAMPLE_LOCATIONS.map((location) => {
+            const selected = location.id === value.id
+            return (
+              <button
+                key={location.id}
+                type="button"
+                onClick={() => selectLocation(location)}
+                className={`relative shrink-0 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sun-400 ${
+                  selected
+                    ? 'border-transparent text-sun-300'
+                    : 'border-white/[0.08] bg-night-900/40 text-mist-300 hover:border-white/15 hover:text-mist-50'
+                }`}
+              >
+                {selected && (
+                  <motion.span
+                    layoutId={reduced ? undefined : `location-chip-pill-${listId}`}
+                    className="absolute inset-0 rounded-full border border-sun-500/40 bg-sun-500/15"
+                    transition={reduced ? { duration: 0 } : softSpring}
+                  />
+                )}
+                <span className="relative z-10">{location.name}</span>
+              </button>
+            )
+          })}
+        </div>
+      </LayoutGroup>
 
-      {open && (
-        <ul
-          id={listId}
-          role="listbox"
-          className="absolute z-30 mt-2 max-h-[min(16rem,50vh)] w-full overflow-auto rounded-2xl border border-white/[0.08] bg-night-850/95 py-1.5 shadow-2xl shadow-black/50 backdrop-blur-xl"
-        >
-          {searching && results.length === 0 ? (
-            <li className="px-3 py-3 text-sm text-mist-400">Searching…</li>
-          ) : results.length === 0 ? (
-            <li className="px-3 py-3 text-sm text-mist-400">
-              {isLive ? 'No cities found' : 'Type at least 2 letters'}
-            </li>
-          ) : (
-            results.map((location, index) => {
-              const selected = location.id === value.id
-              const active = index === activeIndex
-              return (
-                <li
-                  key={location.id}
-                  role="option"
-                  aria-selected={selected}
-                  id={`${listId}-${location.id}`}
-                >
-                  <button
-                    type="button"
-                    className={`flex min-h-11 w-full flex-col items-start justify-center gap-0.5 px-3.5 py-2.5 text-left text-sm transition-colors ${
-                      active
-                        ? 'bg-gradient-to-r from-sun-500/20 to-transparent text-mist-50'
-                        : 'text-mist-100 hover:bg-white/[0.03]'
-                    }`}
-                    onMouseDown={(event) => event.preventDefault()}
-                    onMouseEnter={() => setActiveIndex(index)}
-                    onClick={() => selectLocation(location)}
+      <AnimatePresence>
+        {open && (
+          <motion.ul
+            id={listId}
+            role="listbox"
+            initial={reduced ? { opacity: 0 } : { opacity: 0, y: -6, scale: 0.98 }}
+            animate={reduced ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
+            exit={reduced ? { opacity: 0 } : { opacity: 0, y: -4, scale: 0.98 }}
+            transition={reduced ? { duration: 0.12 } : softSpring}
+            className="absolute z-30 mt-2 max-h-[min(16rem,50vh)] w-full origin-top overflow-auto rounded-2xl border border-white/[0.08] bg-night-850/95 py-1.5 shadow-2xl shadow-black/50 backdrop-blur-xl"
+          >
+            {searching && results.length === 0 ? (
+              <li className="px-3 py-3 text-sm text-mist-400">Searching…</li>
+            ) : results.length === 0 ? (
+              <li className="px-3 py-3 text-sm text-mist-400">
+                {isLive ? 'No cities found' : 'Type at least 2 letters'}
+              </li>
+            ) : (
+              results.map((location, index) => {
+                const selected = location.id === value.id
+                const active = index === activeIndex
+                return (
+                  <li
+                    key={location.id}
+                    role="option"
+                    aria-selected={selected}
+                    id={`${listId}-${location.id}`}
                   >
-                    <span className="font-semibold">{location.name}</span>
-                    <span className="text-xs text-mist-400">
-                      {[location.admin, location.country].filter(Boolean).join(' · ') ||
-                        formatLocationLabel(location)}
-                    </span>
-                  </button>
-                </li>
-              )
-            })
-          )}
-          {error && isLive && (
-            <li className="border-t border-white/[0.06] px-3 py-2 text-[0.7rem] text-mist-500">
-              Live search failed — showing sample matches when available.
-            </li>
-          )}
-        </ul>
-      )}
+                    <button
+                      type="button"
+                      className={`flex min-h-11 w-full flex-col items-start justify-center gap-0.5 px-3.5 py-2.5 text-left text-sm transition-colors ${
+                        active
+                          ? 'bg-gradient-to-r from-sun-500/20 to-transparent text-mist-50'
+                          : 'text-mist-100 hover:bg-white/[0.03]'
+                      }`}
+                      onMouseDown={(event) => event.preventDefault()}
+                      onMouseEnter={() => setActiveIndex(index)}
+                      onClick={() => selectLocation(location)}
+                    >
+                      <span className="font-semibold">{location.name}</span>
+                      <span className="text-xs text-mist-400">
+                        {[location.admin, location.country].filter(Boolean).join(' · ') ||
+                          formatLocationLabel(location)}
+                      </span>
+                    </button>
+                  </li>
+                )
+              })
+            )}
+            {error && isLive && (
+              <li className="border-t border-white/[0.06] px-3 py-2 text-[0.7rem] text-mist-500">
+                Live search failed — showing sample matches when available.
+              </li>
+            )}
+          </motion.ul>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

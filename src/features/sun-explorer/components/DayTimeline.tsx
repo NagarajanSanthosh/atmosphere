@@ -1,3 +1,4 @@
+import { DragScrub } from '@/components/motion'
 import type { SolarDayEvents } from '@/engines/solar'
 import { formatLocalDate } from '@/features/sun-explorer/utils/formatLocalDate'
 import { formatSolarTime } from '@/features/sun-explorer/utils/formatSolarTime'
@@ -30,6 +31,8 @@ export function DayTimeline({
     percent: number
     color: string
   }>
+
+  const progress = progressPercent / 100
 
   return (
     <div className="mt-4 space-y-3 px-1 pb-0.5 sm:mt-5 sm:px-1.5 sm:pb-1">
@@ -70,6 +73,14 @@ export function DayTimeline({
           ))}
         </div>
 
+        <DragScrub
+          value={progress}
+          onChange={(next) => onProgressChange(next * 100)}
+          aria-label="Time of day in selected location"
+          className="mt-1"
+        />
+
+        {/* Native twin for AT that prefer form controls; visually hidden */}
         <input
           type="range"
           min={0}
@@ -77,8 +88,9 @@ export function DayTimeline({
           step={0.05}
           value={progressPercent}
           onChange={(event) => onProgressChange(Number(event.target.value))}
-          aria-label="Time of day in selected location"
-          className="timeline-range"
+          tabIndex={-1}
+          aria-hidden="true"
+          className="sr-only"
         />
       </div>
 

@@ -1,19 +1,2 @@
-import { useEffect, useState } from 'react'
-
-/** True when the user prefers reduced motion (or SSR-safe default false). */
-export function usePrefersReducedMotion(): boolean {
-  const [reduced, setReduced] = useState(() => {
-    if (typeof window === 'undefined' || !window.matchMedia) return false
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  })
-
-  useEffect(() => {
-    const media = window.matchMedia('(prefers-reduced-motion: reduce)')
-    const onChange = () => setReduced(media.matches)
-    onChange()
-    media.addEventListener('change', onChange)
-    return () => media.removeEventListener('change', onChange)
-  }, [])
-
-  return reduced
-}
+/** @deprecated Import from `@/hooks/usePrefersReducedMotion` instead. */
+export { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'

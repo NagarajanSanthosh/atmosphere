@@ -64,6 +64,12 @@ export function mapOpenMeteoForecast(
       data.current?.weather_code ?? hourFallback?.weatherCode ?? null,
   }
 
+  const daily =
+    data.daily?.time.map((stamp, index) => ({
+      date: fromUnix(stamp),
+      uvIndexMax: data.daily?.uv_index_max?.[index] ?? null,
+    })) ?? []
+
   return {
     latitude: data.latitude,
     longitude: data.longitude,
@@ -71,6 +77,7 @@ export function mapOpenMeteoForecast(
     fetchedAt: new Date(),
     current,
     hourly,
-    uvIndexMaxToday: data.daily?.uv_index_max?.[0] ?? null,
+    uvIndexMaxToday: daily[0]?.uvIndexMax ?? null,
+    daily,
   }
 }

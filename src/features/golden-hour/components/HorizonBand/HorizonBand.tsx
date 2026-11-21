@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useCallback, useState } from 'react'
 import type { LightPhaseId } from '@/engines/daylight'
 import type { MoonSky } from '@/engines/solar'
 import { getAtmospherePalette } from '@/features/golden-hour/utils/atmospherePalette'
@@ -31,6 +31,11 @@ export function HorizonBand({
   locationName,
 }: HorizonBandProps) {
   const palette = getAtmospherePalette(phase)
+  const [webglReady, setWebglReady] = useState(false)
+  const onReady = useCallback(() => setWebglReady(true), [])
+
+  // Fade CSS stars once WebGL is up so the handoff isn’t a hard cut
+  const cssStarsOpacity = !reducedMotion && webglReady ? 0 : 1
 
   return (
     <section
@@ -38,16 +43,18 @@ export function HorizonBand({
       className="relative h-[17.5rem] overflow-hidden rounded-2xl border border-white/[0.1] sm:h-[19rem] sm:rounded-3xl"
       style={{ background: palette.cssGradient }}
     >
-      {/* CSS sky always on */}
       <div
         aria-hidden="true"
         className="absolute inset-0 transition-[background] duration-700 ease-out"
         style={{ background: palette.cssGradient }}
       />
 
-      {/* Night star dots (CSS) so band never looks empty without WebGL */}
       {isNight && (
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 transition-opacity duration-700 ease-out"
+          style={{ opacity: cssStarsOpacity }}
+        >
           {CSS_STARS.map((star) => (
             <span
               key={star.id}
@@ -84,6 +91,7 @@ export function HorizonBand({
             moon={moon}
             isNight={isNight}
             reducedMotion={reducedMotion}
+            onReady={onReady}
           />
         </Suspense>
       )}

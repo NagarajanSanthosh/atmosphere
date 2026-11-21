@@ -1,29 +1,58 @@
-import { motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useMemo, useState } from 'react'
+import { DepthCard } from '@/components/motion'
+import { softSpring } from '@/components/motion/tokens'
 import { LocationSearch } from '@/components/shared/LocationSearch'
-import { SAMPLE_LOCATIONS } from '@/data/sample-locations'
+import { PlaceControls } from '@/components/shared/PlaceControls'
 import type { LightWindowId } from '@/engines/daylight'
 import { getMoonSky, getSunPosition } from '@/engines/solar'
+import { BestOfWeek } from '@/features/golden-hour/components/BestOfWeek'
 import { DayRibbon } from '@/features/golden-hour/components/DayRibbon'
 import { HorizonBand } from '@/features/golden-hour/components/HorizonBand'
+import { ShootBrief } from '@/features/golden-hour/components/ShootBrief'
 import { ShootNowCard } from '@/features/golden-hour/components/ShootNowCard'
 import { StudioHeader } from '@/features/golden-hour/components/StudioHeader'
+import { WindowCountdownBar } from '@/features/golden-hour/components/WindowCountdownBar'
 import { WindowsRail } from '@/features/golden-hour/components/WindowsRail'
 import { useLightStudio } from '@/features/golden-hour/hooks/useLightStudio'
-import { usePrefersReducedMotion } from '@/features/golden-hour/hooks/usePrefersReducedMotion'
+import { useWindowNotifications } from '@/features/golden-hour/hooks/useWindowNotifications'
+import { useWeatherForecast } from '@/features/weather/hooks/useWeatherForecast'
+import { useCompactViewport } from '@/hooks/useCompactViewport'
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
+import { useSharedPlace } from '@/hooks/useSharedPlace'
 import { isNightSkyPhase } from '@/features/golden-hour/utils/atmospherePalette'
 import { formatLocalDate } from '@/features/sun-explorer/utils/formatLocalDate'
-import type { Location } from '@/types/location'
 
 /**
  * Shoot desk: header → fixed horizon band → now/next → ribbon + windows.
  * Normal document flow — no full-viewport overlay theater.
  */
 export function GoldenHourPage() {
-  const [location, setLocation] = useState<Location>(SAMPLE_LOCATIONS[0])
+  const {
+    location,
+    setLocation,
+    date,
+    dateInputValue,
+    setDateFromInput,
+    jumpToToday,
+  } = useSharedPlace()
   const [focusedId, setFocusedId] = useState<LightWindowId | null>(null)
-  const { instant, windows, active } = useLightStudio({ location })
+  const [alertsEnabled, setAlertsEnabled] = useState(false)
+  const { dayAnchor, instant, windows, active } = useLightStudio({
+    location,
+    dayAnchor: date,
+  })
+  const forecast = useWeatherForecast({ location })
   const reducedMotion = usePrefersReducedMotion()
+  const compactViewport = useCompactViewport()
+  const notificationsSupported =
+    typeof window !== 'undefined' && typeof Notification !== 'undefined'
+
+  useWindowNotifications({
+    active,
+    enabled: alertsEnabled,
+    locationName: location.name,
+  })
 
   const altitudeDegrees = useMemo(
     () =>
@@ -62,75 +91,98 @@ export function GoldenHourPage() {
       <StudioHeader
         reducedMotion={reducedMotion}
         meta={meta}
-        search={<LocationSearch value={location} onChange={setLocation} />}
+        search={
+          <div className="flex flex-col gap-3">
+            <LocationSearch value={location} onChange={setLocation} />
+            <PlaceControls
+              dateInputValue={dateInputValue}
+              onDateChange={setDateFromInput}
+              onJumpToday={jumpToToday}
+              onLocation={setLocation}
+            />
+          </div>
+        }
       />
 
-      <motion.div
-        initial={reducedMotion ? false : { opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={
-          reducedMotion
-            ? { duration: 0 }
-            : { type: 'spring', stiffness: 240, damping: 28 }
-        }
-      >
-        <HorizonBand
-          phase={active.phase}
-          altitudeDegrees={altitudeDegrees}
-          moon={moon}
-          isNight={isNight}
-          reducedMotion={reducedMotion}
-          locationName={location.name}
-        />
-      </motion.div>
+      <WindowCountdownBar
+        active={active}
+        instant={instant}
+        timeZone={location.timezone}
+        alertsEnabled={alertsEnabled}
+        onToggleAlerts={() => setAlertsEnabled((value) => !value)}
+        notificationsSupported={notificationsSupported}
+      />
 
-      <div className="grid gap-3 sm:gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
+      <AnimatePresence mode="wait">
         <motion.div
-          className="flex flex-col gap-3 sm:gap-4"
-          initial={reducedMotion ? false : { opacity: 0, y: 12 }}
+          key={`horizon-${location.id}`}
+          initial={reducedMotion ? { opacity: 0 } : { opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={
-            reducedMotion
-              ? { duration: 0 }
-              : { delay: 0.05, type: 'spring', stiffness: 240, damping: 28 }
-          }
+          exit={reducedMotion ? { opacity: 0 } : { opacity: 0, y: -6 }}
+          transition={reducedMotion ? { duration: 0.12 } : softSpring}
         >
-          <ShootNowCard
-            active={active}
-            instant={instant}
-            timeZone={location.timezone}
+          <HorizonBand
+            phase={active.phase}
+            altitudeDegrees={altitudeDegrees}
+            moon={moon}
             isNight={isNight}
             reducedMotion={reducedMotion}
-          />
-          <DayRibbon
-            windows={windows}
-            instant={instant}
-            timeZone={location.timezone}
-            focusedId={focusedId}
-            onSelectWindow={selectWindow}
-            reducedMotion={reducedMotion}
+            locationName={location.name}
           />
         </motion.div>
+      </AnimatePresence>
 
+      <AnimatePresence mode="wait">
         <motion.div
-          initial={reducedMotion ? false : { opacity: 0, y: 12 }}
+          key={`desk-${location.id}-${dayAnchor.toDateString()}`}
+          className="grid gap-3 sm:gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]"
+          initial={reducedMotion ? { opacity: 0 } : { opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={
-            reducedMotion
-              ? { duration: 0 }
-              : { delay: 0.08, type: 'spring', stiffness: 240, damping: 28 }
-          }
+          exit={reducedMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
+          transition={reducedMotion ? { duration: 0.12 } : softSpring}
         >
-          <WindowsRail
-            windows={windows}
-            activeId={active.current?.id ?? null}
-            focusedId={focusedId}
-            onSelectWindow={selectWindow}
-            timeZone={location.timezone}
-            reducedMotion={reducedMotion}
-          />
+          <div className="flex flex-col gap-3 sm:gap-4">
+            <DepthCard disableTilt={compactViewport}>
+              <ShootNowCard
+                active={active}
+                instant={instant}
+                timeZone={location.timezone}
+                isNight={isNight}
+                reducedMotion={reducedMotion}
+              />
+            </DepthCard>
+            <DepthCard disableTilt={compactViewport}>
+              <ShootBrief
+                location={location}
+                active={active}
+                windows={windows}
+                instant={instant}
+                hourly={forecast.data?.hourly}
+              />
+            </DepthCard>
+            <DayRibbon
+              windows={windows}
+              instant={instant}
+              timeZone={location.timezone}
+              focusedId={focusedId}
+              onSelectWindow={selectWindow}
+              reducedMotion={reducedMotion}
+            />
+            <BestOfWeek location={location} from={dayAnchor} />
+          </div>
+
+          <DepthCard disableTilt={compactViewport}>
+            <WindowsRail
+              windows={windows}
+              activeId={active.current?.id ?? null}
+              focusedId={focusedId}
+              onSelectWindow={selectWindow}
+              timeZone={location.timezone}
+              reducedMotion={reducedMotion}
+            />
+          </DepthCard>
         </motion.div>
-      </div>
+      </AnimatePresence>
     </div>
   )
 }

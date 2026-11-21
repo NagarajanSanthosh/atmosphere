@@ -1,33 +1,44 @@
 import { motion } from 'framer-motion'
+import { softSpring } from '@/components/motion/tokens'
 import { Panel } from '@/components/ui/Panel'
 import type { CityDaySnapshot } from '@/features/city-comparison/hooks/useCityCompare'
+import { windowDurationMs } from '@/features/city-comparison/utils/goldenDelta'
 import { formatDayLength } from '@/features/sun-explorer/utils/formatDayLength'
 import { formatSolarTime } from '@/features/sun-explorer/utils/formatSolarTime'
 import type { LightWindow } from '@/engines/daylight'
 
 type CityDayCardProps = {
   snapshot: CityDaySnapshot
-  accent: 'sun' | 'twilight'
+  accent: 'sun' | 'twilight' | 'dusk' | 'mist'
+  layoutId?: string
   reducedMotion?: boolean
+}
+
+const ACCENT_CLASS: Record<CityDayCardProps['accent'], string> = {
+  sun: 'text-sun-300 border-sun-500/25',
+  twilight: 'text-twilight-300 border-twilight-500/25',
+  dusk: 'text-dusk-500 border-dusk-500/25',
+  mist: 'text-mist-200 border-white/15',
 }
 
 export function CityDayCard({
   snapshot,
   accent,
+  layoutId,
   reducedMotion = false,
 }: CityDayCardProps) {
   const { location, events, phaseLabel } = snapshot
   const tz = location.timezone
-  const accentClass =
-    accent === 'sun' ? 'text-sun-300 border-sun-500/25' : 'text-twilight-300 border-twilight-500/25'
+  const accentClass = ACCENT_CLASS[accent]
+  const goldenEveningLen = formatDayLength(snapshot.goldenEveningDurationMs)
 
   return (
     <motion.div
+      layout={!reducedMotion}
+      layoutId={layoutId}
       initial={reducedMotion ? false : { opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={
-        reducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 260, damping: 28 }
-      }
+      transition={reducedMotion ? { duration: 0 } : softSpring}
     >
       <Panel className="overflow-hidden">
         <div className={`border-b border-white/[0.06] px-4 py-3 sm:px-5 ${accentClass}`}>
@@ -36,7 +47,7 @@ export function CityDayCard({
           </p>
           <h2 className="mt-1 font-display text-2xl text-mist-50">{location.name}</h2>
           <p className="mt-0.5 text-xs text-mist-400">
-            Now · <span className="text-mist-200">{phaseLabel}</span>
+            Phase · <span className="text-mist-200">{phaseLabel}</span>
           </p>
         </div>
 
@@ -54,7 +65,13 @@ export function CityDayCard({
           <ul className="space-y-2">
             <WindowRow label="Golden morning" window={snapshot.goldenMorning} timeZone={tz} tone="sun" />
             <WindowRow label="Blue morning" window={snapshot.blueMorning} timeZone={tz} tone="blue" />
-            <WindowRow label="Golden evening" window={snapshot.goldenEvening} timeZone={tz} tone="sun" />
+            <WindowRow
+              label="Golden evening"
+              window={snapshot.goldenEvening}
+              timeZone={tz}
+              tone="sun"
+              duration={goldenEveningLen}
+            />
             <WindowRow label="Blue evening" window={snapshot.blueEvening} timeZone={tz} tone="blue" />
           </ul>
         </div>
@@ -91,20 +108,29 @@ function WindowRow({
   window,
   timeZone,
   tone,
+  duration,
 }: {
   label: string
   window: LightWindow | null
   timeZone: string
   tone: 'sun' | 'blue'
+  duration?: string
 }) {
   const toneClass = tone === 'sun' ? 'text-sun-300' : 'text-twilight-300'
+  const length =
+    duration ??
+    formatDayLength(windowDurationMs(window))
+
   return (
     <li className="flex items-center justify-between gap-3 text-sm">
       <span className={`font-medium ${toneClass}`}>{label}</span>
-      <span className="shrink-0 font-mono text-xs text-mist-200 sm:text-sm">
+      <span className="shrink-0 text-right font-mono text-xs text-mist-200 sm:text-sm">
         {formatSolarTime(window?.interval.start, timeZone)}
         <span className="text-mist-500"> – </span>
         {formatSolarTime(window?.interval.end, timeZone)}
+        {window && (
+          <span className="mt-0.5 block text-[0.65rem] text-mist-500">{length}</span>
+        )}
       </span>
     </li>
   )

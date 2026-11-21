@@ -1,13 +1,41 @@
-import { NavLink } from 'react-router-dom'
+import { motion } from 'framer-motion'
+import { useEffect } from 'react'
+import { NavLink, useLocation, useSearchParams } from 'react-router-dom'
+import { snappySpring } from '@/components/motion/tokens'
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 
 const NAV_ITEMS = [
-  { to: '/', label: 'Explorer', short: 'Explore', end: true, soon: false },
-  { to: '/studio', label: 'Golden Hour', short: 'Golden', soon: false },
-  { to: '/weather', label: 'Weather', short: 'Weather', soon: false },
-  { to: '/compare', label: 'Compare', short: 'Compare', soon: false },
+  { to: '/', label: 'Explorer', short: 'Explore', end: true },
+  { to: '/studio', label: 'Golden Hour', short: 'Golden', end: false },
+  { to: '/weather', label: 'Weather', short: 'Weather', end: false },
+  { to: '/compare', label: 'Compare', short: 'Compare', end: false },
 ] as const
 
+function prefetchHorizonCanvas() {
+  void import('@/features/golden-hour/components/HorizonBand/HorizonCanvas')
+}
+
 export function AppHeader() {
+  const location = useLocation()
+  const [searchParams] = useSearchParams()
+  const reduced = usePrefersReducedMotion()
+  const query = searchParams.toString()
+  const withQuery = (path: string) => (query ? `${path}?${query}` : path)
+
+  useEffect(() => {
+    const run = () => prefetchHorizonCanvas()
+    const w = window as Window & {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number
+      cancelIdleCallback?: (id: number) => void
+    }
+    if (typeof w.requestIdleCallback === 'function') {
+      const id = w.requestIdleCallback(run, { timeout: 2500 })
+      return () => w.cancelIdleCallback?.(id)
+    }
+    const id = window.setTimeout(run, 1800)
+    return () => window.clearTimeout(id)
+  }, [])
+
   return (
     <header className="sticky top-0 z-40 border-b border-white/[0.06] bg-night-950/80 backdrop-blur-xl pt-[env(safe-area-inset-top)]">
       <div
@@ -38,31 +66,43 @@ export function AppHeader() {
           className="nav-scroll -mx-4 overflow-x-auto px-4 sm:-mx-0 sm:px-0"
         >
           <ul className="flex w-max min-w-full gap-0.5 rounded-full border border-white/[0.06] bg-night-900/55 p-1 backdrop-blur-md sm:min-w-0 md:w-auto">
-            {NAV_ITEMS.map((item) => (
-              <li key={item.to} className="shrink-0">
-                <NavLink
-                  to={item.to}
-                  end={'end' in item ? item.end : false}
-                  className={({ isActive }) =>
-                    [
-                      'nav-chip',
-                      isActive ? 'nav-chip-active' : '',
-                      item.soon && !isActive ? 'nav-chip-soon' : '',
-                    ]
-                      .filter(Boolean)
-                      .join(' ')
-                  }
-                >
-                  <span className="sm:hidden">{item.short}</span>
-                  <span className="hidden sm:inline">{item.label}</span>
-                  {item.soon && (
-                    <span className="ml-1.5 hidden rounded-full bg-night-950/25 px-1.5 py-0.5 text-[0.55rem] font-bold tracking-wide uppercase opacity-80 sm:inline">
-                      Soon
-                    </span>
+            {NAV_ITEMS.map((item) => {
+              const active =
+                item.end
+                  ? location.pathname === item.to
+                  : location.pathname.startsWith(item.to)
+
+              return (
+                <li key={item.to} className="relative shrink-0">
+                  {active && (
+                    <motion.span
+                      layoutId={reduced ? undefined : 'nav-active-pill'}
+                      className="absolute inset-0 rounded-full bg-gradient-to-r from-sun-500/90 to-dusk-500/90 shadow-[0_0_20px_rgba(240,164,58,0.25)]"
+                      transition={reduced ? { duration: 0 } : snappySpring}
+                    />
                   )}
-                </NavLink>
-              </li>
-            ))}
+                  <NavLink
+                    to={withQuery(item.to)}
+                    end={item.end}
+                    onMouseEnter={
+                      item.to === '/studio' ? prefetchHorizonCanvas : undefined
+                    }
+                    onFocus={item.to === '/studio' ? prefetchHorizonCanvas : undefined}
+                    className={({ isActive }) =>
+                      [
+                        'nav-chip relative z-10',
+                        isActive ? 'text-night-950' : '',
+                      ]
+                        .filter(Boolean)
+                        .join(' ')
+                    }
+                  >
+                    <span className="sm:hidden">{item.short}</span>
+                    <span className="hidden sm:inline">{item.label}</span>
+                  </NavLink>
+                </li>
+              )
+            })}
           </ul>
         </nav>
       </div>

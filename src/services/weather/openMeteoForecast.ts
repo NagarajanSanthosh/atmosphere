@@ -21,7 +21,7 @@ export async function fetchWeatherForecast(
     longitude: String(input.longitude),
     timezone: input.timezone || 'auto',
     timeformat: 'unixtime',
-    forecast_days: '2',
+    forecast_days: '7',
     current: 'temperature_2m,weather_code,cloud_cover,uv_index',
     hourly: 'temperature_2m,uv_index,cloud_cover,weather_code',
     daily: 'uv_index_max',

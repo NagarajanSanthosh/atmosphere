@@ -40,6 +40,11 @@ export type WeatherHour = {
   weatherCode: number | null
 }
 
+export type WeatherDaily = {
+  date: Date
+  uvIndexMax: number | null
+}
+
 export type WeatherSnapshot = {
   latitude: number
   longitude: number
@@ -48,4 +53,5 @@ export type WeatherSnapshot = {
   current: WeatherCurrent
   hourly: WeatherHour[]
   uvIndexMaxToday: number | null
+  daily: WeatherDaily[]
 }

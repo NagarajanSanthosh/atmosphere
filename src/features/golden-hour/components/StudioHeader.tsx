@@ -1,5 +1,8 @@
 import { motion } from 'framer-motion'
 import type { ReactNode } from 'react'
+import { HeroCopy } from '@/components/motion'
+import { springFor } from '@/components/motion/tokens'
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 
 type StudioHeaderProps = {
   search: ReactNode
@@ -8,35 +11,29 @@ type StudioHeaderProps = {
 }
 
 export function StudioHeader({ search, meta, reducedMotion = false }: StudioHeaderProps) {
+  const reduced = usePrefersReducedMotion() || reducedMotion
+
   return (
     <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between lg:gap-8">
-      <motion.div
-        className="min-w-0 max-w-xl"
-        initial={reducedMotion ? false : { opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={
-          reducedMotion ? { duration: 0 } : { type: 'spring', stiffness: 280, damping: 28 }
-        }
-      >
-        <p className="eyebrow mb-1.5">Golden Hour Studio</p>
-        <h1 className="font-display text-3xl leading-tight text-mist-50 sm:text-4xl">
-          Daymark
-        </h1>
-        <p className="mt-2 text-sm text-mist-400">
-          Plan shoots with light, not guesswork.
-        </p>
-        <p className="mt-1.5 text-xs text-mist-500">{meta}</p>
-      </motion.div>
+      <div>
+        <HeroCopy
+          eyebrow="Golden Hour Studio"
+          titleClassName="font-display text-3xl leading-tight text-mist-50 sm:text-4xl"
+          title="Daymark"
+          subtitle={
+            <>
+              <span className="block">Plan shoots with light, not guesswork.</span>
+              <span className="mt-1.5 block text-xs text-mist-500">{meta}</span>
+            </>
+          }
+        />
+      </div>
 
       <motion.div
         className="w-full lg:max-w-md"
-        initial={reducedMotion ? false : { opacity: 0, y: 10 }}
+        initial={reduced ? { opacity: 0 } : { opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={
-          reducedMotion
-            ? { duration: 0 }
-            : { delay: 0.05, type: 'spring', stiffness: 280, damping: 28 }
-        }
+        transition={{ ...springFor(reduced), delay: reduced ? 0 : 0.12 }}
       >
         {search}
       </motion.div>

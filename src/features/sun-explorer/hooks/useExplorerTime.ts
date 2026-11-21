@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { Location } from '@/types/location'
 import {
   dateOnLocalDay,
@@ -8,17 +8,23 @@ import {
 
 type UseExplorerTimeOptions = {
   location: Location
+  /** Shared calendar day from URL / place controls. */
+  dayAnchor: Date
 }
 
 /**
- * Owns the Explorer calendar day + scrubbed local time of day.
- * `instant` is a real UTC Date for the selected local wall clock.
+ * Owns Explorer scrubbed local time of day on a shared calendar day.
  */
-export function useExplorerTime({ location }: UseExplorerTimeOptions) {
-  const [dayAnchor] = useState(() => new Date())
+export function useExplorerTime({ location, dayAnchor }: UseExplorerTimeOptions) {
   const [localMinutes, setLocalMinutes] = useState(() =>
     getLocalMinutes(new Date(), location.timezone),
   )
+
+  const dayKey = `${dayAnchor.getFullYear()}-${dayAnchor.getMonth()}-${dayAnchor.getDate()}`
+
+  useEffect(() => {
+    setLocalMinutes(getLocalMinutes(new Date(), location.timezone))
+  }, [dayKey, location.timezone])
 
   const instant = useMemo(
     () => dateOnLocalDay(dayAnchor, location.timezone, localMinutes),

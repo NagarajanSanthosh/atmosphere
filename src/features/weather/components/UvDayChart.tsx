@@ -1,4 +1,6 @@
+import { motion } from 'framer-motion'
 import { Panel } from '@/components/ui/Panel'
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 import type { WeatherHour } from '@/services/weather/types'
 import { formatUv, getUvCategory } from '@/features/weather/utils/uvScale'
 import { formatSolarTime } from '@/features/sun-explorer/utils/formatSolarTime'
@@ -14,6 +16,7 @@ const HEIGHT = 180
 const PAD = { top: 16, right: 12, bottom: 28, left: 28 }
 
 export function UvDayChart({ hours, now, timeZone }: UvDayChartProps) {
+  const reduced = usePrefersReducedMotion()
   const points = hours.filter((hour) => hour.uvIndex != null)
   const maxUv = Math.max(3, ...points.map((hour) => hour.uvIndex ?? 0), 1)
   const peak = points.reduce<(typeof points)[number] | null>((best, hour) => {
@@ -97,14 +100,26 @@ export function UvDayChart({ hours, now, timeZone }: UvDayChartProps) {
               )
             })}
 
-            <path d={area} fill="rgba(240,164,58,0.16)" />
-            <path
+            <motion.path
+              d={area}
+              fill="rgba(240,164,58,0.16)"
+              initial={reduced ? false : { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: reduced ? 0 : 0.55, ease: [0.22, 1, 0.36, 1] }}
+            />
+            <motion.path
               d={path}
               fill="none"
               stroke="#f0a43a"
               strokeWidth={2.25}
               strokeLinecap="round"
               strokeLinejoin="round"
+              initial={reduced ? false : { pathLength: 0, opacity: 0.4 }}
+              animate={{ pathLength: 1, opacity: 1 }}
+              transition={{
+                duration: reduced ? 0 : 0.85,
+                ease: [0.22, 1, 0.36, 1],
+              }}
             />
 
             {nowX != null && (
