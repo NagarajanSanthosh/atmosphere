@@ -4,8 +4,7 @@ const NAV_ITEMS = [
   { to: '/', label: 'Explorer', short: 'Explore', end: true, soon: false },
   { to: '/studio', label: 'Golden Hour', short: 'Golden', soon: false },
   { to: '/weather', label: 'Weather', short: 'Weather', soon: false },
-  { to: '/compare', label: 'Compare', short: 'Compare', soon: true },
-  { to: '/earth', label: 'Earth', short: 'Earth', soon: true },
+  { to: '/compare', label: 'Compare', short: 'Compare', soon: false },
 ] as const
 
 export function AppHeader() {

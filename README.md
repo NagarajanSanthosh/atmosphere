@@ -2,7 +2,7 @@
 
 **Understand your world through sunlight.**
 
-A public, frontend-only interactive app for exploring sunrise/sunset, sun position, golden hour, UV, city daylight comparison, and a 3D Earth day/night view.
+A public, frontend-only interactive app for exploring sunrise/sunset, sun position, golden hour, UV, and city daylight comparison.
 
 No accounts. No backend. Browser + public APIs.
 
@@ -13,7 +13,7 @@ No accounts. No backend. Browser + public APIs.
 - React Router
 - TanStack Query (Open-Meteo fetch/cache)
 - Framer Motion (Studio UI choreography)
-- Three.js + React Three Fiber (Studio Atmosphere Stage)
+- Three.js + React Three Fiber (Studio horizon band)
 
 Current extras: SunCalc (via `engines/solar` wrapper), Open-Meteo weather + geocoding (via `services/`).
 
@@ -33,7 +33,7 @@ npm run preview
 ```
 src/
 ├── app/           # shell, routes, providers, layout
-├── features/      # sun-explorer, golden-hour, weather, city-comparison, earth
+├── features/      # sun-explorer, golden-hour, weather, city-comparison
 ├── components/    # shared UI, charts, visualizations
 ├── engines/       # pure solar / daylight / geometry math (no React)
 ├── services/      # Open-Meteo weather + geocoding
@@ -53,7 +53,6 @@ src/
 | 2 | Solar calculation engine |
 | 3 | Live Sun Explorer |
 | 4 | Golden Hour Studio (shoot desk + horizon band) |
-| **5** | UV & weather *(current)* |
+| 5 | UV & weather |
 | 6 | City comparison |
-| 7 | 3D Earth |
-| 8 | Polish + deploy |
+| **8** | Polish + deploy *(current)* |
