@@ -43,7 +43,7 @@ export function ComparePage() {
   }
 
   return (
-    <Stagger className="flex flex-col gap-5 sm:gap-6" stagger={0.06}>
+    <Stagger className="flex flex-col gap-2.5 sm:gap-6" stagger={0.06}>
       <StaggerItem>
         <CompareHeader reducedMotion={reducedMotion} />
       </StaggerItem>
@@ -58,11 +58,17 @@ export function ComparePage() {
       </StaggerItem>
 
       <StaggerItem>
-        <p className="text-xs text-mist-500">
-          Shared calendar day ·{' '}
-          {formatLocalDate(compare.dayAnchor, compare.locations[0]?.timezone ?? 'UTC')} ·
-          times in each city&apos;s timezone · up to {compare.maxCities} cities · City A
-          syncs across the app via the URL
+        <p className="text-[0.7rem] text-mist-500 sm:text-xs">
+          <span className="sm:hidden">
+            {formatLocalDate(compare.dayAnchor, compare.locations[0]?.timezone ?? 'UTC')} · up
+            to {compare.maxCities} cities
+          </span>
+          <span className="hidden sm:inline">
+            Shared calendar day ·{' '}
+            {formatLocalDate(compare.dayAnchor, compare.locations[0]?.timezone ?? 'UTC')} ·
+            times in each city&apos;s timezone · up to {compare.maxCities} cities · City A
+            syncs across the app via the URL
+          </span>
         </p>
       </StaggerItem>
 

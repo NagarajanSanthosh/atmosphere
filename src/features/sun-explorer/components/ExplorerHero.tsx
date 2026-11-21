@@ -12,7 +12,7 @@ export function ExplorerHero({ search }: ExplorerHeroProps) {
   const reduced = usePrefersReducedMotion()
 
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
+    <div className="flex flex-col gap-2.5 sm:flex-row sm:items-end sm:justify-between sm:gap-6">
       <HeroCopy
         eyebrow="Sun Explorer"
         title={

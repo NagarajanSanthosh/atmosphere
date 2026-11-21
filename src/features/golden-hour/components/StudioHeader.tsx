@@ -14,11 +14,11 @@ export function StudioHeader({ search, meta, reducedMotion = false }: StudioHead
   const reduced = usePrefersReducedMotion() || reducedMotion
 
   return (
-    <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between lg:gap-8">
+    <header className="flex flex-col gap-2.5 lg:flex-row lg:items-end lg:justify-between lg:gap-8">
       <div>
         <HeroCopy
           eyebrow="Golden Hour Studio"
-          titleClassName="font-display text-3xl leading-tight text-mist-50 sm:text-4xl"
+          titleClassName="font-display text-xl leading-tight text-mist-50 sm:text-4xl"
           title="Daymark"
           subtitle={
             <>
@@ -27,6 +27,7 @@ export function StudioHeader({ search, meta, reducedMotion = false }: StudioHead
             </>
           }
         />
+        <p className="mt-1 truncate text-[0.7rem] text-mist-500 sm:hidden">{meta}</p>
       </div>
 
       <motion.div

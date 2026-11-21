@@ -44,11 +44,11 @@ export function SunExplorerPage() {
   }, [location.id]) // eslint-disable-line react-hooks/exhaustive-deps -- re-anchor local clock when city changes
 
   return (
-    <Stagger className="flex flex-col gap-4 sm:gap-5" stagger={0.07}>
+    <Stagger className="flex flex-col gap-2.5 sm:gap-5" stagger={0.07}>
       <StaggerItem>
         <ExplorerHero
           search={
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2">
               <LocationSearch value={location} onChange={setLocation} />
               <PlaceControls
                 dateInputValue={dateInputValue}

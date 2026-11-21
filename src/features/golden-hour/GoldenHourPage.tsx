@@ -87,12 +87,12 @@ export function GoldenHourPage() {
   const meta = `${location.name} · ${formatLocalDate(instant, location.timezone)} · ${location.timezone.replace(/_/g, ' ')}`
 
   return (
-    <div className="flex flex-col gap-5 sm:gap-6">
+    <div className="flex flex-col gap-2.5 sm:gap-6">
       <StudioHeader
         reducedMotion={reducedMotion}
         meta={meta}
         search={
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-2">
             <LocationSearch value={location} onChange={setLocation} />
             <PlaceControls
               dateInputValue={dateInputValue}

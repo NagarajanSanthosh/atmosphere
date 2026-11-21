@@ -33,7 +33,7 @@ npm run preview
 ```
 src/
 ├── app/           # shell, routes, providers, layout
-├── features/      # sun-explorer, golden-hour, weather, city-comparison
+├── features/      # sun-explorer, golden-hour, weather, city-comparison, year-heatmap
 ├── components/    # shared UI, charts, visualizations
 ├── engines/       # pure solar / daylight / geometry math (no React)
 ├── services/      # Open-Meteo weather + geocoding
@@ -58,4 +58,6 @@ src/
 | 8 | Cross-app motion & UI polish — shared motion tokens, route enter/exit, nav layoutId pill, Explorer day drag scrub, Weather hourly drag + UV draw-in, Studio DepthCard / city crossfade, Compare swap layout + delta punch; `prefers-reduced-motion` respected. Deploy can follow as 8b. |
 | 9 | Tier B deepen — Explorer solstice/moon overlays + shadow estimator; Studio sticky countdown + optional window alerts + best-of-week golden evenings; Weather sky story, cloud-vs-golden overlay, 7-day UV; Compare date picker, trip mode (≤4 cities), golden duration / earlier evening. |
 | 10 | Tier A — URL-synced place (`lat/lon/tz` or `loc`) + `date`; Use my location (reverse geocode); date controls on Explorer/Studio/Weather/Compare; Shoot brief + azimuth compass; HorizonCanvas idle/hover preload; `vercel.json` / `netlify.toml` SPA rewrites. |
-| **11** | First-visit intro *(current)* — Framer sun-rise → moon → Daymark splash (once via `localStorage`; `?intro=1` to replay; Skip + reduced-motion). |
+| 11 | First-visit intro — Framer sun-rise → moon → Daymark splash (once via `localStorage`; `?intro=1` to replay; Skip + reduced-motion). |
+| 12 | Year daylight heatmap — `/year` calendar grid; day length vs 12h / golden percentile; shared place/date URL. |
+| **13** | Weather rebuild *(current)* — mobile-first single column: now → hours → UV/cloud charts → week; auto-snap to today when date has no forecast. |

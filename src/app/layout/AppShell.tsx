@@ -17,10 +17,10 @@ export function AppShell() {
         }
       />
       <AppHeader />
-      <main className="relative mx-auto w-full max-w-7xl flex-1 px-4 py-5 sm:px-6 sm:py-7 lg:px-8 lg:py-9">
+      <main className="relative mx-auto w-full max-w-7xl flex-1 px-3 py-3 sm:px-6 sm:py-7 lg:px-8 lg:py-9">
         <PageTransition />
       </main>
-      <footer className="relative border-t border-white/[0.05] px-4 py-4 text-center text-[0.7rem] leading-relaxed tracking-wide text-mist-500 sm:px-6 sm:py-5 sm:text-xs lg:px-8">
+      <footer className="relative border-t border-white/[0.05] px-3 py-3 text-center text-[0.65rem] leading-relaxed tracking-wide text-mist-500 sm:px-6 sm:py-5 sm:text-xs lg:px-8">
         <span className="text-sun-500/80">◆</span>
         <span className="mx-1.5 sm:mx-2">
           Frontend-only · No accounts · Solar math in your browser

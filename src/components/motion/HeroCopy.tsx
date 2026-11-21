@@ -17,7 +17,7 @@ export function HeroCopy({
   title,
   subtitle,
   className = '',
-  titleClassName = 'font-display text-2xl leading-tight text-mist-50 sm:text-3xl',
+  titleClassName = 'font-display text-xl leading-tight text-mist-50 sm:text-3xl',
 }: HeroCopyProps) {
   const reduced = usePrefersReducedMotion()
   const transition = springFor(reduced)
@@ -35,7 +35,7 @@ export function HeroCopy({
       }}
     >
       <motion.p
-        className="eyebrow mb-1.5"
+        className="eyebrow mb-1 sm:mb-1.5"
         variants={{
           hidden: reduced ? { opacity: 0 } : { opacity: 0, y: 8 },
           show: { opacity: 1, y: 0, transition },
@@ -54,7 +54,7 @@ export function HeroCopy({
       </motion.h1>
       {subtitle && (
         <motion.div
-          className="mt-2 max-w-md text-sm text-mist-400"
+          className="mt-1.5 hidden max-w-md text-sm text-mist-400 sm:mt-2 sm:block"
           variants={{
             hidden: reduced ? { opacity: 0 } : { opacity: 0, y: 10 },
             show: { opacity: 1, y: 0, transition },

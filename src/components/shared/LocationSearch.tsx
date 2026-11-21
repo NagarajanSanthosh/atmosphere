@@ -50,17 +50,10 @@ export function LocationSearch({ value, onChange }: LocationSearchProps) {
 
   return (
     <div className="relative w-full">
-      <div className="mb-2 flex items-center justify-between gap-2">
-        <p className="truncate text-sm text-mist-300">
-          <span className="text-mist-500">Selected · </span>
-          <span className="font-medium text-mist-50">{value.name}</span>
-        </p>
-      </div>
-
       <label className="sr-only" htmlFor="location-search">
         Search location
       </label>
-      <div className="flex items-center gap-2.5 rounded-2xl border border-white/[0.08] bg-night-900/60 px-3 py-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_12px_30px_rgba(0,0,0,0.25)] backdrop-blur-md focus-within:border-sun-500/35 focus-within:ring-2 focus-within:ring-sun-500/20 sm:gap-3 sm:px-3.5 sm:py-3">
+      <div className="flex items-center gap-2 rounded-xl border border-white/[0.08] bg-night-900/60 px-2.5 py-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-md focus-within:border-sun-500/35 focus-within:ring-2 focus-within:ring-sun-500/20 sm:gap-2.5 sm:rounded-2xl sm:px-3.5 sm:py-2.5 sm:shadow-[inset_0_1px_0_rgba(255,255,255,0.05),0_12px_30px_rgba(0,0,0,0.25)]">
         <SearchIcon />
         <input
           ref={inputRef}
@@ -97,7 +90,7 @@ export function LocationSearch({ value, onChange }: LocationSearchProps) {
       </div>
 
       <LayoutGroup id={`chips-${listId}`}>
-        <div className="mt-2 flex gap-1.5 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="mt-1.5 flex gap-1 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mt-2 sm:gap-1.5">
           {SAMPLE_LOCATIONS.map((location) => {
             const selected = location.id === value.id
             return (
@@ -105,7 +98,7 @@ export function LocationSearch({ value, onChange }: LocationSearchProps) {
                 key={location.id}
                 type="button"
                 onClick={() => selectLocation(location)}
-                className={`relative shrink-0 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sun-400 ${
+                className={`relative shrink-0 rounded-full border px-2 py-0.5 text-[0.7rem] font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sun-400 sm:px-2.5 sm:py-1 sm:text-xs ${
                   selected
                     ? 'border-transparent text-sun-300'
                     : 'border-white/[0.08] bg-night-900/40 text-mist-300 hover:border-white/15 hover:text-mist-50'

@@ -37,14 +37,14 @@ export function CityPickers({
   )
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center justify-end gap-2">
+    <div className="flex flex-col gap-2.5 sm:gap-4">
+      <div className="flex flex-wrap items-center justify-end gap-1.5 sm:gap-2">
         <motion.button
           type="button"
           onClick={onSwapFirstTwo}
           whileTap={reduced ? undefined : { scale: 0.92, rotate: 180 }}
           transition={reduced ? { duration: 0 } : snappySpring}
-          className="rounded-full border border-white/[0.1] bg-night-900/60 px-4 py-2 text-xs font-semibold tracking-wide text-mist-200 uppercase transition-colors hover:border-sun-500/35 hover:text-sun-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sun-400"
+          className="rounded-full border border-white/[0.1] bg-night-900/60 px-3 py-1.5 text-[0.65rem] font-semibold tracking-wide text-mist-200 uppercase transition-colors hover:border-sun-500/35 hover:text-sun-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sun-400 sm:px-4 sm:py-2 sm:text-xs"
           aria-label="Swap first two cities"
         >
           Swap A/B
@@ -53,7 +53,7 @@ export function CityPickers({
           <button
             type="button"
             onClick={() => onAddCity(addCandidates[0])}
-            className="rounded-full border border-sun-500/30 bg-sun-500/10 px-4 py-2 text-xs font-semibold tracking-wide text-sun-300 uppercase"
+            className="rounded-full border border-sun-500/30 bg-sun-500/10 px-3 py-1.5 text-[0.65rem] font-semibold tracking-wide text-sun-300 uppercase sm:px-4 sm:py-2 sm:text-xs"
           >
             Add city
           </button>
@@ -61,7 +61,7 @@ export function CityPickers({
       </div>
 
       <div
-        className={`grid gap-3 ${
+        className={`grid gap-2.5 sm:gap-3 ${
           locations.length >= 3
             ? 'lg:grid-cols-2 xl:grid-cols-2'
             : 'lg:grid-cols-2'

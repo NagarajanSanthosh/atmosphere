@@ -4,6 +4,7 @@ import { ComparePage } from '@/features/city-comparison/ComparePage'
 import { GoldenHourPage } from '@/features/golden-hour/GoldenHourPage'
 import { SunExplorerPage } from '@/features/sun-explorer/SunExplorerPage'
 import { WeatherPage } from '@/features/weather/WeatherPage'
+import { YearHeatmapPage } from '@/features/year-heatmap/YearHeatmapPage'
 
 export function AppRouter() {
   return (
@@ -14,6 +15,7 @@ export function AppRouter() {
           <Route path="studio" element={<GoldenHourPage />} />
           <Route path="weather" element={<WeatherPage />} />
           <Route path="compare" element={<ComparePage />} />
+          <Route path="year" element={<YearHeatmapPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>
